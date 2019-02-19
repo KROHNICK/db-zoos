@@ -18,6 +18,11 @@ server.use(helmet());
 
 // endpoints here
 
+// server.get("/", (req, res) => {
+//   res.send("Server Works.");
+// });
+// Server working properly on postman.
+
 const port = 3300;
 server.listen(port, function() {
   console.log(`\n=== Web API Listening on http://localhost:${port} ===\n`);
