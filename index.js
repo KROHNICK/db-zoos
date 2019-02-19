@@ -59,24 +59,23 @@ server.get("/api/zoos/:id", async (req, res) => {
   }
 });
 
-// server.put("/api/zoos/:id", async (req, res) => {
-//   try {
-//     const count = await db("zoos")
-//       .where({ id: req.param.id })
-//       .update(req.body);
+server.put("/api/zoos/:id", async (req, res) => {
+  try {
+    const count = await db("zoos")
+      .where({ id: req.params.id })
+      .update(req.body);
 
-//     if (count > 0) {
-//       const zoo = await db("zoos")
-//         .where({ id: req.params.id })
-//         .first();
-//       res.status(200).json(zoo);
-//     } else {
-//       res.status(404).json({ message: "Records not found" });
-//     }
-//   } catch (err) {
-//     res.status(500).json(err);
-//   }
-// });
+    if (count > 0) {
+      const zoo = await db("zoos")
+        .where({ id: req.params.id })
+        .first();
+
+      res.status(200).json(zoo);
+    } else {
+      res.status(404).json({ message: "Records not found" });
+    }
+  } catch (error) {}
+});
 
 const port = 3300;
 server.listen(port, function() {
