@@ -29,7 +29,7 @@ server.get("/api/zoos", async (req, res) => {
     res.status(200).json(zoos);
   } catch (err) {
     res.status(500).json({
-      error: "Some useful error message"
+      error: "Could not get zoos."
     });
   }
 });
@@ -72,9 +72,27 @@ server.put("/api/zoos/:id", async (req, res) => {
 
       res.status(200).json(zoo);
     } else {
-      res.status(404).json({ message: "Records not found" });
+      res.status(404).json({ message: "Zoo not found" });
     }
   } catch (error) {}
+});
+
+server.delete("/api/zoos/:id", async (req, res) => {
+  try {
+    const count = await db("zoos")
+      .where({ id: req.params.id })
+      .del();
+
+    if (count > 0) {
+      res.status(204).json({
+        message: "Zoo deleted."
+      });
+    } else {
+      res.status(404).json({
+        message: "Zoo not found"
+      });
+    }
+  } catch (err) {}
 });
 
 const port = 3300;
