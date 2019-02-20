@@ -1,12 +1,105 @@
-const express = require('express');
-const helmet = require('helmet');
+const express = require("express");
+const helmet = require("helmet");
+const knex = require("knex");
+
+const knexConfig = {
+  client: "sqlite",
+  connection: {
+    filename: "./data/lambda.sqlite3"
+  },
+  useNullAsDefault: true
+};
+const db = knex(knexConfig);
 
 const server = express();
 
 server.use(express.json());
 server.use(helmet());
 
+server.get("/", (req, res) => {
+  res.send("Server Works.");
+});
+// Server working properly on postman.
+
 // endpoints here
+
+server.get("/api/zoos", async (req, res) => {
+  try {
+    const zoos = await db("zoos");
+    res.status(200).json(zoos);
+  } catch (err) {
+    res.status(500).json({
+      error: "Could not get zoos."
+    });
+  }
+});
+
+server.post("/api/zoos", async (req, res) => {
+  try {
+    if (!req.body.name) {
+      res.status(500).json({
+        message: "Please provide a name."
+      });
+    } else {
+      const [id] = await db("zoos").insert(req.body);
+      const zoo = await db("zoos")
+        .where({ id })
+        .first();
+      res.status(201).json(zoo);
+    }
+  } catch (err) {
+    res.status(500).json({
+      error: "Could not create new zoo."
+    });
+  }
+});
+
+server.get("/api/zoos/:id", async (req, res) => {
+  try {
+    const role = await db("zoos")
+      .where({ id: req.params.id })
+      .first();
+    res.status(200).json(role);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+server.put("/api/zoos/:id", async (req, res) => {
+  try {
+    const count = await db("zoos")
+      .where({ id: req.params.id })
+      .update(req.body);
+
+    if (count > 0) {
+      const zoo = await db("zoos")
+        .where({ id: req.params.id })
+        .first();
+
+      res.status(200).json(zoo);
+    } else {
+      res.status(404).json({ message: "Zoo not found" });
+    }
+  } catch (error) {}
+});
+
+server.delete("/api/zoos/:id", async (req, res) => {
+  try {
+    const count = await db("zoos")
+      .where({ id: req.params.id })
+      .del();
+
+    if (count > 0) {
+      res.status(204).json({
+        message: "Zoo deleted."
+      });
+    } else {
+      res.status(404).json({
+        message: "Zoo not found"
+      });
+    }
+  } catch (err) {}
+});
 
 const port = 3300;
 server.listen(port, function() {
