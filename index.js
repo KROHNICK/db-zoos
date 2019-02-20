@@ -36,11 +36,17 @@ server.get("/api/zoos", async (req, res) => {
 
 server.post("/api/zoos", async (req, res) => {
   try {
-    const [id] = await db("zoos").insert(req.body);
-    const zoo = await db("zoos")
-      .where({ id })
-      .first();
-    res.status(201).json(zoo);
+    if (!req.body.name) {
+      res.status(500).json({
+        message: "Please provide a name."
+      });
+    } else {
+      const [id] = await db("zoos").insert(req.body);
+      const zoo = await db("zoos")
+        .where({ id })
+        .first();
+      res.status(201).json(zoo);
+    }
   } catch (err) {
     res.status(500).json({
       error: "Could not create new zoo."
